@@ -1,0 +1,3 @@
+curl -X POST https://api.hyperliquid.xyz/info \
+  -H "Content-Type: application/json" \
+  -d '{"type":"perpDexs"}' | jq > meta.json
