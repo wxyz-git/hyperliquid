@@ -51,7 +51,7 @@ impl HyperLiquidClient {
             .send()
             .await?;
 
-        let sub_accounts: ReferralResponse = response.json().await?;
-        Ok(sub_accounts)
+        let referral: ReferralResponse = response.json().await?;
+        Ok(referral)
     }
 }

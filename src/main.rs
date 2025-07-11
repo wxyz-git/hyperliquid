@@ -1,9 +1,7 @@
-use std::error::Error;
-
 use hyperliquid::client::HyperLiquidClient;
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn Error>> {
+async fn main() -> anyhow::Result<()> {
     let client = HyperLiquidClient::new();
 
     // // Get all mid prices
@@ -32,8 +30,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
     // let l2_book = client.get_l2_book("BTC").await?;
     // println!("L2 book: {:#?}", l2_book);
 
-    // let candle_snapshot = client.get_candle_snapshot("BTC", "1m", 1751540616000, 1751540716000).await?;
-    // println!("Candle snapshot: {:#?}", candle_snapshot);
+    let candle_snapshot = client.get_candle_snapshot("BTC", "1m", 1751540616000, 1751540716000).await?;
+    println!("Candle snapshot: {:#?}", candle_snapshot);
 
     // let historical_orders = client.get_historical_orders("0xcA1c5C696f27888E1D496466Ad99DF6e589FD634").await?;
     // println!("Historical orders: {:#?}", historical_orders);

@@ -24,7 +24,7 @@ pub struct OpenOrdersResponse {
 }
 
 impl HyperLiquidClient {
-    pub async fn get_open_orders(&self, user: &str) -> Result<Vec<OpenOrdersResponse>, Box<dyn std::error::Error>> {
+    pub async fn get_open_orders(&self, user: &str) -> anyhow::Result<Vec<OpenOrdersResponse>> {
         let url = format!("{}/info", self.base_url);
         
         let request_body = OpenOrdersRequest {

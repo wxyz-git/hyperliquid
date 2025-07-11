@@ -99,7 +99,7 @@ impl HyperLiquidClient {
             .send()
             .await?;
 
-        let candle_data: Vec<HistoricalOrdersResponse> = response.json().await?;
-        Ok(candle_data)
+        let historical_orders: Vec<HistoricalOrdersResponse> = response.json().await?;
+        Ok(historical_orders)
     }
 }

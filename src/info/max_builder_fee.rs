@@ -3,59 +3,26 @@ use serde::{Deserialize, Serialize};
 use crate::client::HyperLiquidClient;
 
 #[derive(Serialize)]
-struct CandleSnapshotRequest {
+struct MaxBuilderFeeRequest {
     #[serde(rename = "type")]
     request_type: String,
-    req: CandleRequest,
-}
-
-#[derive(Serialize)]
-struct CandleRequest {
-    coin: String,
-    interval: String,
-    #[serde(rename = "startTime")]
-    start_time: u64,
-    #[serde(rename = "endTime")]
-    end_time: u64,
+    user: String,
+    builder: String,
 }
 
 #[derive(Deserialize, Debug)]
-pub struct CandleData {
-    /// Start time of the candle in epoch milliseconds
-    pub t: u64,
-    /// End time of the candle in epoch milliseconds
-    #[serde(rename = "T")]
-    pub end_time: u64,
-    /// Symbol/coin name
-    pub s: String,
-    /// Interval
-    pub i: String,
-    /// Open price
-    pub o: String,
-    /// Close price
-    pub c: String,
-    /// High price
-    pub h: String,
-    /// Low price
-    pub l: String,
-    /// Volume
-    pub v: String,
-    /// Number of trades
-    pub n: u32,
+pub struct MaxBuilderFeeResponse {
+    pub fee: f64,
 }
 
 impl HyperLiquidClient {
-    pub async fn get_candle_snapshot(&self, coin: &str, interval: &str, start_time: u64, end_time: u64) -> anyhow::Result<Vec<CandleData>> {
+    pub async fn get_max_builder_fee(&self, user: &str, builder: &str) -> anyhow::Result<MaxBuilderFeeResponse> {
         let url = format!("{}/info", self.base_url);
     
-        let request_body = CandleSnapshotRequest {
-            request_type: "candleSnapshot".to_string(),
-            req: CandleRequest {
-                coin: coin.to_string(),
-                interval: interval.to_string(),
-                start_time: start_time,
-                end_time: end_time,
-            },
+        let request_body = MaxBuilderFeeRequest {
+            request_type: "maxBuilderFee".to_string(),
+            user: user.to_string(),
+            builder: builder.to_string(),
         };
 
         let response = self
@@ -66,7 +33,7 @@ impl HyperLiquidClient {
             .send()
             .await?;
 
-        let candle_data: Vec<CandleData> = response.json().await?;
-        Ok(candle_data)
+        let max_builder_fee: MaxBuilderFeeResponse = response.json().await?;
+        Ok(max_builder_fee)
     }
 }

@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::client::HyperLiquidClient;
+use crate::errors::validate_ethereum_address;
 
 #[derive(Serialize)]
 struct PortfolioRequest {
@@ -24,6 +25,9 @@ pub struct PortfolioHistoryData {
 
 impl HyperLiquidClient {
     pub async fn get_portfolio(&self, user: &str) -> anyhow::Result<PortfolioResponse> {
+        // Validate input
+        validate_ethereum_address(user)?;
+        
         let url = format!("{}/info", self.base_url);
 
         let request_body = PortfolioRequest {
@@ -37,9 +41,15 @@ impl HyperLiquidClient {
             .header("Content-Type", "application/json")
             .json(&request_body)
             .send()
-            .await?;
+            .await
+            .map_err(|e| anyhow::anyhow!("HTTP request failed: {}", e))?;
 
-        let portfolio: PortfolioResponse = response.json().await?;
+        if !response.status().is_success() {
+            return Err(anyhow::anyhow!("API error: {}", response.status()));
+        }
+
+        let portfolio: PortfolioResponse = response.json().await
+            .map_err(|e| anyhow::anyhow!("Failed to parse response: {}", e))?;
         Ok(portfolio)
     }
 }

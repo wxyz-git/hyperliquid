@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::client::HyperLiquidClient;
+use crate::errors::{validate_coin_symbol, validate_time_range, validate_interval};
 
 #[derive(Serialize)]
 struct CandleSnapshotRequest {
@@ -46,8 +47,11 @@ pub struct CandleData {
 
 impl HyperLiquidClient {
     pub async fn get_candle_snapshot(&self, coin: &str, interval: &str, start_time: u64, end_time: u64) -> anyhow::Result<Vec<CandleData>> {
-        let url = format!("{}/info", self.base_url);
-    
+        // Validate inputs
+        validate_coin_symbol(coin)?;
+        validate_interval(interval)?;
+        validate_time_range(start_time, end_time)?;
+        
         let request_body = CandleSnapshotRequest {
             request_type: "candleSnapshot".to_string(),
             req: CandleRequest {
@@ -58,15 +62,6 @@ impl HyperLiquidClient {
             },
         };
 
-        let response = self
-            .client
-            .post(&url)
-            .header("Content-Type", "application/json")
-            .json(&request_body)
-            .send()
-            .await?;
-
-        let candle_data: Vec<CandleData> = response.json().await?;
-        Ok(candle_data)
+        self.make_custom_request(&request_body).await
     }
 }
