@@ -1,14 +1,7 @@
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 
 use crate::client::HyperLiquidClient;
-
-
-#[derive(Serialize)]
-struct SubAccountsRequest {
-    #[serde(rename = "type")]
-    request_type: String,
-    user: String,
-}
+use crate::errors::validate_ethereum_address;
 
 pub type SubAccountsResponse = Option<Vec<SubAccounts>>;
 
@@ -67,22 +60,7 @@ pub struct Balance {
 
 impl HyperLiquidClient {
     pub async fn get_sub_accounts(&self, user: &str) -> anyhow::Result<SubAccountsResponse> {
-        let url = format!("{}/info", self.base_url);
-
-        let request_body = SubAccountsRequest {
-            request_type: "subAccounts".to_string(),
-            user: user.to_string(),
-        };
-
-        let response = self
-            .client
-            .post(&url)
-            .header("Content-Type", "application/json")
-            .json(&request_body)
-            .send()
-            .await?;
-
-        let sub_accounts: SubAccountsResponse = response.json().await?;
-        Ok(sub_accounts)
+        validate_ethereum_address(user)?;
+        self.make_user_request("subAccounts", user).await
     }
 }

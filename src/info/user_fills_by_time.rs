@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::client::HyperLiquidClient;
+use crate::errors::{validate_ethereum_address, validate_time_range};
 
 #[derive(Serialize, Debug)]
 struct UserFillsByTimeRequest {
@@ -49,8 +50,11 @@ pub struct Liquidation {
 
 impl HyperLiquidClient {
     pub async fn get_user_fills_by_time(&self, user: &str, start_time: u64, end_time: Option<u64>, aggregated_by_time: bool) -> anyhow::Result<Vec<UserFillsByTimeResponse>> {
-        let url = format!("{}/info", self.base_url);
-    
+        validate_ethereum_address(user)?;
+        if let Some(end_time) = end_time {
+            validate_time_range(start_time, end_time)?;
+        }
+        
         let request_body = UserFillsByTimeRequest {
             request_type: "userFillsByTime".to_string(),
             user: user.to_string(),
@@ -59,15 +63,6 @@ impl HyperLiquidClient {
             aggregated_by_time: aggregated_by_time,
         };
 
-        let response = self
-            .client
-            .post(&url)
-            .header("Content-Type", "application/json")
-            .json(&request_body)
-            .send()
-            .await?;
-
-        let user_fills: Vec<UserFillsByTimeResponse> = response.json().await?;
-        Ok(user_fills)
+        self.make_custom_request(&request_body).await
     }
 }

@@ -1,13 +1,7 @@
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 
 use crate::client::HyperLiquidClient;
-
-#[derive(Serialize)]
-struct UserFillsRequest {
-    #[serde(rename = "type")]
-    request_type: String,
-    user: String,
-}
+use crate::errors::validate_ethereum_address;
 
 #[derive(Deserialize, Debug)]
 pub struct UserFillsResponse {
@@ -33,22 +27,7 @@ pub struct UserFillsResponse {
 
 impl HyperLiquidClient {
     pub async fn get_user_fills(&self, user: &str) -> anyhow::Result<Vec<UserFillsResponse>> {
-        let url = format!("{}/info", self.base_url);
-        
-        let request_body = UserFillsRequest {
-            request_type: "userFills".to_string(),
-            user: user.to_string(),
-        };
-
-        let response = self
-            .client
-            .post(&url)
-            .header("Content-Type", "application/json")
-            .json(&request_body)
-            .send()
-            .await?;
-
-        let user_fills: Vec<UserFillsResponse> = response.json().await?;
-        Ok(user_fills)
+        validate_ethereum_address(user)?;
+        self.make_user_request("userFills", user).await
     }
 }

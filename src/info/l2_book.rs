@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::client::HyperLiquidClient;
+use crate::errors::validate_coin_symbol;
 
 #[derive(Serialize)]
 struct L2BookRequest {
@@ -27,11 +28,10 @@ pub struct Level {
     pub n: u32,
 }
 
-
 impl HyperLiquidClient {
     pub async fn get_l2_book(&self, coin: &str) -> anyhow::Result<L2BookResponse> {
-        let url = format!("{}/info", self.base_url);
-    
+        validate_coin_symbol(coin)?;
+        
         let request_body = L2BookRequest {
             request_type: "l2Book".to_string(),
             coin: coin.to_string(),
@@ -39,15 +39,6 @@ impl HyperLiquidClient {
             mantissa: None,
         };
 
-        let response = self
-            .client
-            .post(&url)
-            .header("Content-Type", "application/json")
-            .json(&request_body)
-            .send()
-            .await?;
-
-        let l2_book: L2BookResponse = response.json().await?;
-        Ok(l2_book)
+        self.make_custom_request(&request_body).await
     }
 }

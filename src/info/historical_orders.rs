@@ -1,13 +1,7 @@
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 
 use crate::client::HyperLiquidClient;
-
-#[derive(Serialize)]
-struct HistoricalOrdersRequest {
-    #[serde(rename = "type")]
-    request_type: String,
-    user: String,
-}
+use crate::errors::validate_ethereum_address;
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct HistoricalOrdersResponse {
@@ -84,22 +78,7 @@ impl std::fmt::Display for OrderStatus {
 
 impl HyperLiquidClient {
     pub async fn get_historical_orders(&self, user: &str) -> anyhow::Result<Vec<HistoricalOrdersResponse>> {
-        let url = format!("{}/info", self.base_url);
-    
-        let request_body = HistoricalOrdersRequest {
-            request_type: "historicalOrders".to_string(),
-            user: user.to_string(),
-        };
-
-        let response = self
-            .client
-            .post(&url)
-            .header("Content-Type", "application/json")
-            .json(&request_body)
-            .send()
-            .await?;
-
-        let historical_orders: Vec<HistoricalOrdersResponse> = response.json().await?;
-        Ok(historical_orders)
+        validate_ethereum_address(user)?;
+        self.make_user_request("historicalOrders", user).await
     }
 }

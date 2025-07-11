@@ -1,14 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::client::HyperLiquidClient;
-
-#[derive(Serialize)]
-struct UserFeesRequest {
-    #[serde(rename = "type")]
-    request_type: String,
-    user: String,
-}
-
+use crate::errors::validate_ethereum_address;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -88,22 +81,7 @@ pub struct ActiveStakingDiscount {
 
 impl HyperLiquidClient {
     pub async fn get_user_fees(&self, user: &str) -> anyhow::Result<UserFeesResponse> {
-        let url = format!("{}/info", self.base_url);
-
-        let request_body = UserFeesRequest {
-            request_type: "userFees".to_string(),
-            user: user.to_string(),
-        };
-
-        let response = self
-            .client
-            .post(&url)
-            .header("Content-Type", "application/json")
-            .json(&request_body)
-            .send()
-            .await?;
-
-        let user_fees: UserFeesResponse = response.json().await?;
-        Ok(user_fees)
+        validate_ethereum_address(user)?;
+        self.make_user_request("userFees", user).await
     }
 }
