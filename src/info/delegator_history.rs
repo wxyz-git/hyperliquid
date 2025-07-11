@@ -1,13 +1,7 @@
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 
 use crate::client::HyperLiquidClient;
-
-#[derive(Serialize)]
-struct DelegatorHistoryRequest {
-    #[serde(rename = "type")]
-    request_type: String,
-    user: String,
-}
+use crate::errors::validate_ethereum_address;
 
 pub type DelegatorHistoryResponse = Vec<DelegatorHistory>;
 
@@ -31,18 +25,9 @@ pub struct DelegatorHistoryDelegate {
     pub is_undelegate: bool,
 }
 
-
 impl HyperLiquidClient {
     pub async fn get_delegator_history(&self, user: &str) -> anyhow::Result<DelegatorHistoryResponse> {
-        let url = format!("{}/info", self.base_url);
-
-        let request_body = DelegatorHistoryRequest {
-            request_type: "delegatorHistory".to_string(),
-            user: user.to_string(),
-        };
-
-        let response = self.client.post(&url).header("Content-Type", "application/json").json(&request_body).send().await?;
-        let delegator_history: DelegatorHistoryResponse = response.json().await?;
-        Ok(delegator_history)
+        validate_ethereum_address(user)?;
+        self.make_user_request("delegatorHistory", user).await
     }
 }

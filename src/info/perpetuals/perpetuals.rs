@@ -1,27 +1,7 @@
 use serde::{Deserialize, Serialize};
+use crate::client::HyperLiquidClient;
+use crate::errors::validate_ethereum_address;
 
-#[derive(Serialize, Debug)]
-struct MetaRequest {
-    #[serde(rename = "type")]
-    request_type: String,
-}
-
-// ============================================================================================
-
-#[derive(Serialize, Debug)]
-struct MetaAndAssetCtxsRequest {
-    #[serde(rename = "type")]
-    request_type: String,
-}
-// ============================================================================================
-
-#[derive(Serialize, Debug)]
-pub struct ClearingHouseStateRequest {
-    #[serde(rename = "type")]
-    request_type: String,
-    user: String,
-}
-// ============================================================================================
 // ============================================================================================
 
 #[derive(Deserialize, Debug)]
@@ -188,9 +168,25 @@ pub struct CumFunding {
 
 // ============================================================================================
 
+impl HyperLiquidClient {
+    pub async fn fetch_meta(&self) -> anyhow::Result<MetaResponse> {
+        self.make_basic_request("meta").await
+    }
+
+    pub async fn fetch_meta_and_asset_ctxs(&self) -> anyhow::Result<MetaAndAssetCtxsResponse> {
+        self.make_basic_request("metaAndAssetCtxs").await
+    }
+
+    pub async fn fetch_clearing_house_state(&self, user: &str) -> anyhow::Result<ClearingHouseStateResponse> {
+        validate_ethereum_address(user)?;
+        self.make_user_request("clearinghouseState", user).await
+    }
+}
+
+// Legacy standalone functions for backward compatibility
 pub async fn fetch_meta() -> anyhow::Result<MetaResponse> {
     let client = reqwest::Client::new();
-    let request = MetaRequest {
+    let request = crate::common::BasicRequest {
         request_type: "meta".to_string(),
     };
 
@@ -206,10 +202,9 @@ pub async fn fetch_meta() -> anyhow::Result<MetaResponse> {
     Ok(meta)
 }
 
-
 pub async fn fetch_meta_and_asset_ctxs() -> anyhow::Result<MetaAndAssetCtxsResponse> {
     let client = reqwest::Client::new();
-    let request = MetaAndAssetCtxsRequest {
+    let request = crate::common::BasicRequest {
         request_type: "metaAndAssetCtxs".to_string(),
     };
 
@@ -227,7 +222,7 @@ pub async fn fetch_meta_and_asset_ctxs() -> anyhow::Result<MetaAndAssetCtxsRespo
 
 pub async fn fetch_clearing_house_state(user: &str) -> anyhow::Result<ClearingHouseStateResponse> {
     let client = reqwest::Client::new();
-    let request = ClearingHouseStateRequest {
+    let request = crate::common::BasicUserRequest {
         request_type: "clearinghouseState".to_string(),
         user: user.to_string(),
     };
@@ -243,7 +238,6 @@ pub async fn fetch_clearing_house_state(user: &str) -> anyhow::Result<ClearingHo
 
     Ok(clearing_house_state)
 }
-
 
 // curl -X POST https://api.hyperliquid.xyz/info \
 //   -H "Content-Type: application/json" \

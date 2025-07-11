@@ -1,13 +1,7 @@
 use serde::{Serialize, Deserialize};
 
 use crate::client::HyperLiquidClient;
-
-#[derive(Serialize)]
-struct UserRoleRequest {
-    #[serde(rename = "type")]
-    request_type: String,
-    user: String,
-}
+use crate::errors::validate_ethereum_address;
 
 #[derive(Debug, Deserialize)]
 pub struct UserRoleResponse {
@@ -26,22 +20,7 @@ pub enum Role {
 
 impl HyperLiquidClient {
     pub async fn get_user_role(&self, user: &str) -> anyhow::Result<UserRoleResponse> {
-        let url = format!("{}/info", self.base_url);
-
-        let request_body = UserRoleRequest {
-            request_type: "userRole".to_string(),
-            user: user.to_string(),
-        };
-
-        let response = self
-            .client
-            .post(&url)
-            .header("Content-Type", "application/json")
-            .json(&request_body) 
-            .send()
-            .await?;
-
-        let user_role: UserRoleResponse = response.json().await?;
-    Ok(user_role)
+        validate_ethereum_address(user)?;
+        self.make_user_request("userRole", user).await
     }
 }

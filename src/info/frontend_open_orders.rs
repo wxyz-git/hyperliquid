@@ -1,14 +1,7 @@
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 
 use crate::client::HyperLiquidClient;
-
-
-#[derive(Serialize)]
-struct FrontendOpenOrdersRequest {
-    #[serde(rename = "type")]
-    request_type: String,
-    user: String,
-}
+use crate::errors::validate_ethereum_address;
 
 #[derive(Deserialize, Debug)]
 pub struct FrontendOpenOrdersResponse {
@@ -41,22 +34,7 @@ pub struct FrontendOpenOrdersResponse {
 
 impl HyperLiquidClient {
     pub async fn get_frontend_open_orders(&self, user: &str) -> anyhow::Result<Vec<FrontendOpenOrdersResponse>> {
-        let url = format!("{}/info", self.base_url);
-        
-        let request_body = FrontendOpenOrdersRequest {
-            request_type: "frontendOpenOrders".to_string(),
-            user: user.to_string(),
-        };
-
-        let response = self
-            .client
-            .post(&url)
-            .header("Content-Type", "application/json")
-            .json(&request_body)
-            .send()
-            .await?;
-
-        let frontend_open_orders: Vec<FrontendOpenOrdersResponse> = response.json().await?;
-        Ok(frontend_open_orders)
+        validate_ethereum_address(user)?;
+        self.make_user_request("frontendOpenOrders", user).await
     }
 }

@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::client::HyperLiquidClient;
-
+use crate::errors::validate_ethereum_address;
 
 #[derive(Serialize)]
 struct VaultDetailsRequest {
@@ -63,22 +63,13 @@ pub struct Relationship {
 
 impl HyperLiquidClient {
     pub async fn get_vault_details(&self, vault_address: &str) -> anyhow::Result<VaultDetailsResponse> {
-        let url = format!("{}/info", self.base_url);
-
+        validate_ethereum_address(vault_address)?;
+        
         let request_body = VaultDetailsRequest {
             request_type: "vaultDetails".to_string(),
             vault_address: vault_address.to_string(),
         };
 
-        let response = self
-            .client
-            .post(&url)
-            .header("Content-Type", "application/json")
-            .json(&request_body)
-            .send()
-            .await?;
-
-        let vault_details: VaultDetailsResponse = response.json().await?;
-        Ok(vault_details)
+        self.make_custom_request(&request_body).await
     }
 }   

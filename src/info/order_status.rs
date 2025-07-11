@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::client::HyperLiquidClient;
+use crate::errors::validate_ethereum_address;
 
 #[derive(Serialize)]
 struct OrderStatusRequest {
@@ -54,9 +55,8 @@ pub struct Order{
 }
 
 impl HyperLiquidClient {
-
     pub async fn get_order_status(&self, user: &str, oid: u64) -> anyhow::Result<OrderStatusResponse> {
-        let url = format!("{}/info", self.base_url);
+        validate_ethereum_address(user)?;
         
         let request_body = OrderStatusRequest {
             request_type: "orderStatus".to_string(),
@@ -64,16 +64,7 @@ impl HyperLiquidClient {
             oid: oid,
         };
     
-        let response = self
-            .client
-            .post(&url)
-            .header("Content-Type", "application/json")
-            .json(&request_body)
-            .send()
-            .await?;
-        
-        let order_status: OrderStatusResponse = response.json().await?;
-        Ok(order_status)
+        self.make_custom_request(&request_body).await
     }   
 }
 

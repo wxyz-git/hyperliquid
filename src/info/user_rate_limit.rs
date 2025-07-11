@@ -1,13 +1,7 @@
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 
 use crate::client::HyperLiquidClient;
-
-#[derive(Serialize)]
-struct UserRateLimitRequest {
-    #[serde(rename = "type")]
-    request_type: String,
-    user: String,
-}
+use crate::errors::validate_ethereum_address;
 
 #[derive(Deserialize, Debug)]
 pub struct UserRateLimitResponse {
@@ -21,22 +15,7 @@ pub struct UserRateLimitResponse {
 
 impl HyperLiquidClient {
     pub async fn get_user_rate_limit(&self, user: &str) -> anyhow::Result<UserRateLimitResponse> {
-        let url = format!("{}/info", self.base_url);
-    
-        let request_body = UserRateLimitRequest {
-            request_type: "userRateLimit".to_string(),
-            user: user.to_string(),
-        };
-
-        let response = self
-            .client
-            .post(&url)
-            .header("Content-Type", "application/json")
-            .json(&request_body)
-            .send()
-            .await?;
-
-        let user_rate_limit: UserRateLimitResponse = response.json().await?;
-        Ok(user_rate_limit)
+        validate_ethereum_address(user)?;
+        self.make_user_request("userRateLimit", user).await
     }
 }
