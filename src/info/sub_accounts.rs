@@ -1,4 +1,4 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use crate::client::HyperLiquidClient;
 use crate::errors::validate_ethereum_address;
@@ -24,8 +24,10 @@ pub struct ClearinghouseState {
    #[serde(rename = "crossMarginSummary")]
    pub cross_margin_summary: MarginSummary,
    #[serde(rename = "crossMaintenanceMarginUsed")]
-   pub cross_maintenance_margin_used: String,
-   pub withdrawable: String,
+   #[serde(with = "rust_decimal::serde::str")]
+   pub cross_maintenance_margin_used: Decimal,
+   #[serde(with = "rust_decimal::serde::str")]
+   pub withdrawable: Decimal,
    #[serde(rename = "assetPositions")]
    pub asset_positions: Vec<serde_json::Value>,
    pub time: u64,
@@ -34,13 +36,17 @@ pub struct ClearinghouseState {
 #[derive(Debug, Deserialize)]
 pub struct MarginSummary {
    #[serde(rename = "accountValue")]
-   pub account_value: String,
+   #[serde(with = "rust_decimal::serde::str")]
+   pub account_value: Decimal,
    #[serde(rename = "totalNtlPos")]
-   pub total_ntl_pos: String,
+   #[serde(with = "rust_decimal::serde::str")]
+   pub total_ntl_pos: Decimal,
    #[serde(rename = "totalRawUsd")]
-   pub total_raw_usd: String,
+   #[serde(with = "rust_decimal::serde::str")]
+   pub total_raw_usd: Decimal,
    #[serde(rename = "totalMarginUsed")]
-   pub total_margin_used: String,
+   #[serde(with = "rust_decimal::serde::str")]
+   pub total_margin_used: Decimal,
 }
 
 #[derive(Debug, Deserialize)]
@@ -52,10 +58,13 @@ pub struct SpotState {
 pub struct Balance {
    pub coin: String,
    pub token: u32,
-   pub total: String,
-   pub hold: String,
+   #[serde(with = "rust_decimal::serde::str")]
+   pub total: Decimal,
+   #[serde(with = "rust_decimal::serde::str")]
+   pub hold: Decimal,
    #[serde(rename = "entryNtl")]
-   pub entry_ntl: String,
+   #[serde(with = "rust_decimal::serde::str")]
+   pub entry_ntl: Decimal,
 }
 
 impl HyperLiquidClient {

@@ -1,5 +1,5 @@
+use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
-
 use crate::client::HyperLiquidClient;
 use crate::errors::validate_coin_symbol;
 
@@ -23,8 +23,13 @@ pub struct L2BookResponse {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Level {
-    pub px: String,
-    pub sz: String,
+    /// Price level
+    #[serde(with = "rust_decimal::serde::str")]
+    pub px: Decimal,
+    /// Size/quantity at this price level
+    #[serde(with = "rust_decimal::serde::str")]
+    pub sz: Decimal,
+    /// Number of orders at this level
     pub n: u32,
 }
 

@@ -1,3 +1,4 @@
+use rust_decimal::Decimal;
 use serde::Deserialize;
 use crate::client::HyperLiquidClient;
 use crate::errors::validate_ethereum_address;
@@ -5,9 +6,12 @@ use crate::errors::validate_ethereum_address;
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct DelegatorSummaryResponse {
-    pub delegated: String,
-    pub undelegated: String,
-    pub total_pending_withdrawal: String,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub delegated: Decimal,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub undelegated: Decimal,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub total_pending_withdrawal: Decimal,
     pub n_pending_withdrawals: u64,
 }
 

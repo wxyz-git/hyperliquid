@@ -1,4 +1,4 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use crate::client::HyperLiquidClient;
 use crate::errors::validate_ethereum_address;
@@ -6,7 +6,8 @@ use crate::errors::validate_ethereum_address;
 #[derive(Deserialize, Debug)]
 pub struct UserRateLimitResponse {
     #[serde(rename = "cumVlm")]
-    pub cum_vlm: String,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub cum_vlm: Decimal,
     #[serde(rename = "nRequestsUsed")]
     pub n_requests_used: u64,
     #[serde(rename = "nRequestsCap")]

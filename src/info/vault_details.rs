@@ -1,5 +1,5 @@
+use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
-
 use crate::client::HyperLiquidClient;
 use crate::errors::validate_ethereum_address;
 
@@ -39,16 +39,20 @@ pub struct VaultDetails {
 pub struct PortfolioData {
     pub account_value_history: Vec<(u64, String)>,
     pub pnl_history: Vec<(u64, String)>,
-    pub vlm: String,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub vlm: Decimal,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Follower {
     pub user: String,
-    pub vault_equity: String,
-    pub pnl: String,
-    pub all_time_pnl: String,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub vault_equity: Decimal,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub pnl: Decimal,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub all_time_pnl: Decimal,
     pub days_following: u32,
     pub vault_entry_time: u64,
     pub lockup_until: u64,
@@ -70,6 +74,15 @@ impl HyperLiquidClient {
             vault_address: vault_address.to_string(),
         };
 
-        self.make_custom_request(&request_body).await
+        let response = self
+            .client
+            .post(&url)
+            .header("Content-Type", "application/json")
+            .json(&request_body)
+            .send()
+            .await?;
+
+        let vault_details: VaultDetailsResponse = response.json().await?;
+        Ok(vault_details)
     }
 }   

@@ -35,19 +35,20 @@ pub type Result<T> = std::result::Result<T, HyperLiquidError>;
 pub fn validate_ethereum_address(address: &str) -> Result<()> {
     if !address.starts_with("0x") {
         return Err(HyperLiquidError::InvalidAddress(
-            "Address must start with '0x'".to_string()
+            format!("Invalid Ethereum address '{}': must start with '0x'", address)
         ));
     }
     
     if address.len() != 42 {
         return Err(HyperLiquidError::InvalidAddress(
-            "Address must be 42 characters long".to_string()
+            format!("Invalid Ethereum address '{}': must be 42 characters long, got {} characters", 
+                   address, address.len())
         ));
     }
     
     if !address[2..].chars().all(|c| c.is_ascii_hexdigit()) {
         return Err(HyperLiquidError::InvalidAddress(
-            "Address must contain only hexadecimal characters".to_string()
+            format!("Invalid Ethereum address '{}': contains non-hexadecimal characters", address)
         ));
     }
     
@@ -56,16 +57,20 @@ pub fn validate_ethereum_address(address: &str) -> Result<()> {
 
 pub fn validate_coin_symbol(coin: &str) -> Result<()> {
     if coin.is_empty() {
-        return Err(HyperLiquidError::InvalidCoin("Coin symbol cannot be empty".to_string()));
+        return Err(HyperLiquidError::InvalidCoin(
+            "Coin symbol cannot be empty".to_string()
+        ));
     }
     
     if coin.len() > 10 {
-        return Err(HyperLiquidError::InvalidCoin("Coin symbol too long".to_string()));
+        return Err(HyperLiquidError::InvalidCoin(
+            format!("Invalid coin symbol '{}': too long (max 10 characters, got {})", coin, coin.len())
+        ));
     }
     
     if !coin.chars().all(|c| c.is_alphanumeric() || c == '-' || c == '_') {
         return Err(HyperLiquidError::InvalidCoin(
-            "Coin symbol contains invalid characters".to_string()
+            format!("Invalid coin symbol '{}': contains invalid characters (only alphanumeric, '-', and '_' allowed)", coin)
         ));
     }
     

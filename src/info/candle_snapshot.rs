@@ -1,3 +1,4 @@
+use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
 use crate::client::HyperLiquidClient;
@@ -11,12 +12,11 @@ struct CandleSnapshotRequest {
 }
 
 #[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
 struct CandleRequest {
     coin: String,
     interval: String,
-    #[serde(rename = "startTime")]
     start_time: u64,
-    #[serde(rename = "endTime")]
     end_time: u64,
 }
 
@@ -32,15 +32,20 @@ pub struct CandleData {
     /// Interval
     pub i: String,
     /// Open price
-    pub o: String,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub o: Decimal,
     /// Close price
-    pub c: String,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub c: Decimal,
     /// High price
-    pub h: String,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub h: Decimal,
     /// Low price
-    pub l: String,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub l: Decimal,
     /// Volume
-    pub v: String,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub v: Decimal,
     /// Number of trades
     pub n: u32,
 }

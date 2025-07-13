@@ -1,12 +1,19 @@
 [package]
 name = "hyperliquid"
 version = "0.1.0"
-edition = "2024"
+edition = "2021"
 
 [dependencies]
 anyhow = "1.0.98"
 reqwest = { version = "0.11", features = ["json", "gzip"] }
+rust_decimal = { version = "1.36", features = ["serde-with-str"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 thiserror = "1.0"
 tokio = { version = "1.0", features = ["full"] }
+
+[dev-dependencies]
+wiremock = "0.6"
+tokio-test = "0.4"
+mockito = "1.4"
+futures = "0.3"

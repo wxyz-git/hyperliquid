@@ -1,18 +1,19 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use crate::client::HyperLiquidClient;
 use crate::errors::validate_ethereum_address;
 
 #[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct OpenOrdersResponse {
     pub coin: String,
     pub side: String,
-    #[serde(rename = "limitPx")]
-    pub limit_px: String,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub limit_px: Decimal,
     pub oid: u64,
     pub timestamp: u64,
-    #[serde(rename = "origSz")]
-    pub origsz: String,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub orig_sz: Decimal,
     pub cloid: String,
 }
 

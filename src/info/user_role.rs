@@ -1,11 +1,10 @@
 use serde::{Serialize, Deserialize};
-
 use crate::client::HyperLiquidClient;
 use crate::errors::validate_ethereum_address;
 
 #[derive(Debug, Deserialize)]
 pub struct UserRoleResponse {
-    role: Role,
+   pub role: Role,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]

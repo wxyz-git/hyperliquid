@@ -41,10 +41,22 @@ impl HyperLiquidClient {
                         } else {
                             return Err(anyhow::anyhow!("Rate limit exceeded after {} retries", self.config.max_retries));
                         }
+                    } else if response.status().is_server_error() {
+                        // Server errors (5xx) should be retried
+                        if attempt < self.config.max_retries {
+                            let wait_time = Duration::from_millis(1000 * (2_u64.pow(attempt)));
+                            tokio::time::sleep(wait_time).await;
+                            continue;
+                        } else {
+                            let status = response.status();
+                            let error_text = response.text().await.unwrap_or_else(|_| "Unknown error".to_string());
+                            return Err(anyhow::anyhow!("Server error after {} retries: {} - {}", self.config.max_retries, status, error_text));
+                        }
                     } else {
+                        // Client errors (4xx) should NOT be retried
                         let status = response.status();
                         let error_text = response.text().await.unwrap_or_else(|_| "Unknown error".to_string());
-                        return Err(anyhow::anyhow!("API error: {} - {}", status, error_text));
+                        return Err(anyhow::anyhow!("Client error: {} - {}", status, error_text));
                     }
                 }
                 Err(e) => {

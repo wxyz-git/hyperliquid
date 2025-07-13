@@ -1,36 +1,61 @@
-//! HyperLiquid API Client
-//!
-//! This module provides the main client for interacting with the HyperLiquid API.
+
+//! Main HyperLiquid client with connection pooling and retry logic.
+//! 
+//! This module contains the core [`HyperLiquidClient`] which provides access to all
+//! HyperLiquid API endpoints with built-in features like:
+//! 
+//! - Automatic retry logic with exponential backoff
+//! - Connection pooling and keep-alive
+//! - Rate limit handling
+//! - Input validation
+//! - Comprehensive error handling
 
 use reqwest;
 use std::sync::Arc;
 use crate::config::HyperLiquidConfig;
 
-/// Main client for the HyperLiquid API
+/// Main client for interacting with the HyperLiquid API
 /// 
-/// The client handles HTTP connections, retries, and request routing.
-/// It's designed to be thread-safe and can be shared across async tasks.
+/// The client is thread-safe and can be cloned cheaply. It includes:
+/// - HTTP connection pooling for optimal performance
+/// - Automatic retry logic for transient failures
+/// - Built-in rate limiting support
+/// - Input validation for all parameters
 /// 
 /// # Examples
 /// 
 /// ```rust
 /// use hyperliquid::client::HyperLiquidClient;
+/// use hyperliquid::config::HyperLiquidConfig;
+/// use std::time::Duration;
 /// 
-/// # #[tokio::main]
-/// # async fn main() -> anyhow::Result<()> {
+/// // Create client with default configuration
 /// let client = HyperLiquidClient::new();
-/// let mid_prices = client.get_all_mids().await?;
-/// # Ok(())
-/// # }
+/// 
+/// // Create client with custom configuration
+/// let config = HyperLiquidConfig::new()
+///     .with_timeout(Duration::from_secs(30))
+///     .with_max_retries(5);
+/// let client = HyperLiquidClient::with_config(config);
 /// ```
+#[derive(Clone)]
 pub struct HyperLiquidClient {
+    /// HTTP client with connection pooling
     pub client: reqwest::Client,
+    /// Base URL for the HyperLiquid API
     pub base_url: String,
+    /// Configuration settings (shared across clones)
     pub config: Arc<HyperLiquidConfig>,
 }
 
 impl HyperLiquidClient {
-    /// Create a new client with default configuration
+    /// Create a new HyperLiquid client with default configuration
+    /// 
+    /// Uses default configuration including:
+    /// - 30 second timeout
+    /// - 3 retry attempts 
+    /// - Connection pooling enabled
+    /// - Gzip compression enabled
     /// 
     /// # Examples
     /// 
@@ -43,18 +68,23 @@ impl HyperLiquidClient {
         Self::with_config(HyperLiquidConfig::default())
     }
     
-    /// Create a new client with custom configuration
+    /// Create a new HyperLiquid client with custom configuration
+    /// 
+    /// # Arguments
+    /// 
+    /// * `config` - Custom configuration for the client
     /// 
     /// # Examples
     /// 
     /// ```rust
-    /// use hyperliquid::{client::HyperLiquidClient, config::HyperLiquidConfig};
+    /// use hyperliquid::client::HyperLiquidClient;
+    /// use hyperliquid::config::HyperLiquidConfig;
     /// use std::time::Duration;
     /// 
     /// let config = HyperLiquidConfig::new()
     ///     .with_timeout(Duration::from_secs(60))
     ///     .with_max_retries(5);
-    /// 
+    ///     
     /// let client = HyperLiquidClient::with_config(config);
     /// ```
     pub fn with_config(config: HyperLiquidConfig) -> Self {
@@ -80,29 +110,7 @@ impl HyperLiquidClient {
             config: Arc::new(config),
         }
     }
-    
-    /// Create a new client with configuration loaded from environment variables
-    /// 
-    /// # Environment Variables
-    /// 
-    /// - `HYPERLIQUID_BASE_URL`: API base URL
-    /// - `HYPERLIQUID_TIMEOUT_SECS`: Request timeout in seconds
-    /// - `HYPERLIQUID_MAX_RETRIES`: Maximum retry attempts
-    /// - `HYPERLIQUID_ENABLE_COMPRESSION`: Enable gzip compression
-    /// - `HYPERLIQUID_USER_AGENT`: HTTP User-Agent string
-    /// 
-    /// # Examples
-    /// 
-    /// ```bash
-    /// export HYPERLIQUID_TIMEOUT_SECS=60
-    /// export HYPERLIQUID_MAX_RETRIES=5
-    /// ```
-    /// 
-    /// ```rust
-    /// use hyperliquid::client::HyperLiquidClient;
-    /// 
-    /// let client = HyperLiquidClient::from_env();
-    /// ```
+
     pub fn from_env() -> Self {
         Self::with_config(HyperLiquidConfig::from_env())
     }

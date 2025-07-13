@@ -1,5 +1,5 @@
+use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
-
 use crate::client::HyperLiquidClient;
 use crate::errors::validate_ethereum_address;
 
@@ -13,7 +13,8 @@ pub struct PortfolioHistoryEntry(pub String, pub PortfolioHistoryData);
 pub struct PortfolioHistoryData {
     pub account_value_history: Vec<(u64, String)>,
     pub pnl_history: Vec<(u64, String)>,
-    pub vlm: String,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub vlm: Decimal,
 }
 
 impl HyperLiquidClient {

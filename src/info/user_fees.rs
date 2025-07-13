@@ -1,20 +1,33 @@
+use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
-
 use crate::client::HyperLiquidClient;
-use crate::errors::validate_ethereum_address;
+
+#[derive(Serialize)]
+struct UserFeesRequest {
+    #[serde(rename = "type")]
+    request_type: String,
+    user: String,
+}
+
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct UserFeesResponse {
     pub daily_user_vlm: Vec<DailyUserVlm>,
     pub fee_schedule: FeeSchedule,
-    pub user_cross_rate: String,
-    pub user_add_rate: String,
-    pub user_spot_cross_rate: String,
-    pub user_spot_add_rate: String,
-    pub active_referral_discount: String,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub user_cross_rate: Decimal,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub user_add_rate: Decimal,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub user_spot_cross_rate: Decimal,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub user_spot_add_rate: Decimal,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub active_referral_discount: Decimal,
     pub trial: Option<String>,
-    pub fee_trial_reward: String,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub fee_trial_reward: Decimal,
     pub next_trial_available_timestamp: Option<u64>,
     pub staking_link: Option<String>,
     pub active_staking_discount: Option<ActiveStakingDiscount>,
@@ -24,20 +37,28 @@ pub struct UserFeesResponse {
 #[serde(rename_all = "camelCase")]
 pub struct DailyUserVlm {
     pub date: String,
-    pub user_cross: String,
-    pub user_add: String,
-    pub exchange: String,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub user_cross: Decimal,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub user_add: Decimal,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub exchange: Decimal,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct FeeSchedule {
-    pub cross: String,
-    pub add: String,
-    pub spot_cross: String,
-    pub spot_add: String,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub cross: Decimal,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub add: Decimal,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub spot_cross: Decimal,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub spot_add: Decimal,
     pub tiers: Tiers,
-    pub referral_discount: String,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub referral_discount: Decimal,
     pub staking_discount_tiers: Vec<StakingDiscountTier>,
 }
 
@@ -51,25 +72,34 @@ pub struct Tiers {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct VipTier {
-    pub ntl_cutoff: String,
-    pub cross: String,
-    pub add: String,
-    pub spot_cross: String,
-    pub spot_add: String,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub ntl_cutoff: Decimal,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub cross: Decimal,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub add: Decimal,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub spot_cross: Decimal,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub spot_add: Decimal,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MmTier {
-    pub maker_fraction_cutoff: String,
-    pub add: String,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub maker_fraction_cutoff: Decimal,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub add: Decimal,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct StakingDiscountTier {
-    pub bps_of_max_supply: String,
-    pub discount: String,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub bps_of_max_supply: Decimal,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub discount: Decimal,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

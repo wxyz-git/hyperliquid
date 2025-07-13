@@ -1,7 +1,13 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use crate::client::HyperLiquidClient;
-use crate::errors::validate_ethereum_address;
+
+#[derive(Serialize)]
+struct HistoricalOrdersRequest {
+    #[serde(rename = "type")]
+    request_type: String,
+    user: String,
+}
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct HistoricalOrdersResponse {
@@ -11,33 +17,7 @@ pub struct HistoricalOrdersResponse {
     pub status_timestamp: u64,
 }
 
-#[derive(Deserialize, Debug, Clone)]
-pub struct Order {
-    pub coin: String,
-    pub side: String,
-    #[serde(rename = "limitPx")]
-    pub limit_px: String,
-    pub sz: String,
-    pub oid: u64,
-    pub timestamp: u64,
-    #[serde(rename = "triggerCondition")]
-    pub trigger_condition: String,
-    #[serde(rename = "isTrigger")]
-    pub is_trigger: bool,
-    #[serde(rename = "triggerPx")]
-    pub trigger_px: String,
-    pub children: Vec<serde_json::Value>, // Generic for now, can be more specific if needed
-    #[serde(rename = "isPositionTpsl")]
-    pub is_position_tpsl: bool,
-    #[serde(rename = "reduceOnly")]
-    pub reduce_only: bool,
-    #[serde(rename = "orderType")]
-    pub order_type: String,
-    #[serde(rename = "origSz")]
-    pub orig_sz: String,
-    pub tif: String,
-    pub cloid: Option<String>,
-}
+// Order struct is now imported from crate::types
 
 
 #[derive(Deserialize, Debug, Clone)]

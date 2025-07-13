@@ -1,5 +1,5 @@
+use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
-
 use crate::client::HyperLiquidClient;
 use crate::errors::validate_ethereum_address;
 
@@ -7,10 +7,14 @@ use crate::errors::validate_ethereum_address;
 #[serde(rename_all = "camelCase")]
 pub struct ReferralResponse {
     pub referred_by: Option<String>,
-    pub cum_vlm: String,
-    pub unclaimed_rewards: String,
-    pub claimed_rewards: String,
-    pub builder_rewards: String,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub cum_vlm: Decimal,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub unclaimed_rewards: Decimal,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub claimed_rewards: Decimal,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub builder_rewards: Decimal,
     pub referrer_state: ReferrerState,
     pub reward_history: Vec<RewardHistoryItem>,
 }
@@ -25,7 +29,8 @@ pub struct ReferrerState {
 #[serde(rename_all = "camelCase")]
 pub struct RewardHistoryItem {
     pub time: u64,
-    pub amount: String,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub amount: Decimal,
 }
 
 impl HyperLiquidClient {

@@ -1,27 +1,35 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use crate::client::HyperLiquidClient;
 use crate::errors::validate_ethereum_address;
 
 #[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct UserFillsResponse {
     pub coin: String,
-    pub px: String,
-    pub sz: String,
+    /// Fill price
+    #[serde(with = "rust_decimal::serde::str")]
+    pub px: Decimal,
+    /// Fill size
+    #[serde(with = "rust_decimal::serde::str")]
+    pub sz: Decimal,
     pub side: String,
     pub time: u64,
-    #[serde(rename = "startPosition")]
-    pub start_position: String,
+    /// Starting position before this fill
+    #[serde(with = "rust_decimal::serde::str")]
+    pub start_position: Decimal,
     pub dir: String,
-    #[serde(rename = "closedPnl")]
-    pub closed_pnl: String,
+    /// Closed PnL from this fill
+    #[serde(with = "rust_decimal::serde::str")]
+    pub closed_pnl: Decimal,
     pub hash: String,
     pub oid: u64,
     pub crossed: bool,
-    pub fee: String,
+    /// Fee paid for this fill
+    #[serde(with = "rust_decimal::serde::str")]
+    pub fee: Decimal,
     pub tid: u64,
     pub cloid: Option<String>,
-    #[serde(rename = "feeToken")]
     pub fee_token: String,
 }
 
