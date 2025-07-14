@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
-use crate::client::HyperLiquidClient;
+
+use crate::{client::HyperLiquidClient, errors::validate_ethereum_address, types::Order};
 
 #[derive(Serialize)]
 struct OrderStatusRequest {
@@ -9,17 +10,17 @@ struct OrderStatusRequest {
     oid: u64,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Debug, Deserialize)]
 pub struct OrderStatusResponse {
     pub status: String,
     pub order: OrderStatus,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct OrderStatus {
     pub order: Order,
     pub status: String,
-    #[serde(rename = "statusTimestamp")]
     pub status_timestamp: u64,
 }
 

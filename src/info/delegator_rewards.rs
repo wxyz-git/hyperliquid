@@ -1,16 +1,18 @@
-use serde::{Deserialize, Serialize};
+use rust_decimal::Decimal;
+use serde::Deserialize;
 
 use crate::client::HyperLiquidClient;
 use crate::errors::validate_ethereum_address;
 
 pub type DelegatorRewardsResponse = Vec<DelegatorRewards>;
 
-#[derive(Deserialize, Debug)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DelegatorRewards {
     pub time: u64,
     pub source: String,
-    pub total_amount: String,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub total_amount: Decimal,
 }
 
 impl HyperLiquidClient {

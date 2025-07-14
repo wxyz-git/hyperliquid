@@ -1,32 +1,38 @@
-use serde::{Deserialize, Serialize};
+use rust_decimal::Decimal;
+use serde::Deserialize;
+
 use crate::client::HyperLiquidClient;
 use crate::errors::validate_ethereum_address;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct UserTwapSliceFillsResponse {
     pub fill: Fill,
     #[serde(rename = "twapId")]
     pub twap_id: u64,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Fill {
     pub coin: String,
-    pub px: String,
-    pub sz: String,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub px: Decimal,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub sz: Decimal,
     pub side: String,
     pub time: u64,
-    #[serde(rename = "startPosition")]
-    pub start_position: String,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub start_position: Decimal,
     pub dir: String,
-    #[serde(rename = "closedPnl")]
-    pub closed_pnl: String,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub closed_pnl: Decimal,
     pub hash: String,
     pub oid: u64,
     pub crossed: bool,
-    pub fee: String,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub fee: Decimal,
     pub tid: u64,
-    #[serde(rename = "feeToken")]
     pub fee_token: String,
 }
 

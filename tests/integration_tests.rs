@@ -148,7 +148,7 @@ mod tests {
         match result {
             Ok(mid_prices) => {
                 println!("Successfully fetched mid prices: {:?}", mid_prices);
-                assert!(!mid_prices.0.is_empty());
+                assert!(!mid_prices.prices.is_empty());
             }
             Err(e) => {
                 println!("Expected error (network/API might be down): {}", e);

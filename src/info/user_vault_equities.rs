@@ -1,14 +1,17 @@
-use serde::{Deserialize, Serialize};
+use rust_decimal::Decimal;
+use serde::Deserialize;
+
 use crate::client::HyperLiquidClient;
 use crate::errors::validate_ethereum_address;
 
 pub type UserVaultEquitiesResponse = Option<Vec<VaultPosition>>;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct VaultPosition {
     pub vault_address: String,
-    pub equity: String,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub equity: Decimal,
     pub locked_until_timestamp: u64,
 }
 

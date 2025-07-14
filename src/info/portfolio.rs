@@ -1,14 +1,15 @@
 use rust_decimal::Decimal;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+
 use crate::client::HyperLiquidClient;
 use crate::errors::validate_ethereum_address;
 
 pub type PortfolioResponse = Vec<PortfolioHistoryEntry>;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 pub struct PortfolioHistoryEntry(pub String, pub PortfolioHistoryData);
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PortfolioHistoryData {
     pub account_value_history: Vec<(u64, String)>,

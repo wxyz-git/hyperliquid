@@ -1,5 +1,6 @@
 use rust_decimal::Decimal;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+
 use crate::client::HyperLiquidClient;
 use crate::errors::validate_ethereum_address;
 
@@ -19,13 +20,13 @@ pub struct ReferralResponse {
     pub reward_history: Vec<RewardHistoryItem>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ReferrerState {
     pub stage: String,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RewardHistoryItem {
     pub time: u64,

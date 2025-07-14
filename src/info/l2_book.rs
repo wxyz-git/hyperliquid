@@ -1,27 +1,27 @@
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
+
 use crate::client::HyperLiquidClient;
 use crate::errors::validate_coin_symbol;
 
 #[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
 struct L2BookRequest {
     #[serde(rename = "type")]
     request_type: String,
     coin: String,
-    #[serde(rename = "nSigFigs")]
     n_sig_figs: Option<u64>,
-    #[serde(rename = "mantissa")]
     mantissa: Option<u64>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Debug, Deserialize)]
 pub struct L2BookResponse {
     pub coin: String,
     pub time: u64,
     pub levels: Vec<Vec<Level>>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct Level {
     /// Price level
     #[serde(with = "rust_decimal::serde::str")]

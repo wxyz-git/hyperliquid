@@ -1,4 +1,6 @@
+use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
+
 use crate::client::HyperLiquidClient;
 use crate::errors::validate_ethereum_address;
 
@@ -10,14 +12,16 @@ struct MaxBuilderFeeRequest {
     builder: String,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Debug, Deserialize)]
 pub struct MaxBuilderFeeResponse {
-    pub fee: f64,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub fee: Decimal,
 }
 
 impl HyperLiquidClient {
     pub async fn get_max_builder_fee(&self, user: &str, builder: &str) -> anyhow::Result<MaxBuilderFeeResponse> {
         validate_ethereum_address(user)?;
+        validate_ethereum_address(builder)?;
         
         let request_body = MaxBuilderFeeRequest {
             request_type: "maxBuilderFee".to_string(),

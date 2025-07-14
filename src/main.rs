@@ -9,9 +9,9 @@ async fn main() -> anyhow::Result<()> {
     println!("Fetching all mid prices...");
     match client.get_all_mids().await {
         Ok(mid_prices) => {
-            println!("✅ Successfully fetched {} trading pairs", mid_prices.0.len());
-            if let Some(btc_price) = mid_prices.0.get("BTC") {
-                println!("📈 BTC price: ${}", btc_price);
+            println!("✅ Successfully fetched {} trading pairs", mid_prices.prices.len());
+            if let Some(btc_price) = mid_prices.prices.get("BTC") {
+                println!("📈 BTC price: ${}", btc_price.0);
             }
         }
         Err(e) => {

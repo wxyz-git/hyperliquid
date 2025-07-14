@@ -1,26 +1,16 @@
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 
-use crate::client::HyperLiquidClient;
+use crate::{client::HyperLiquidClient, errors::validate_ethereum_address, types::Order};
 
-#[derive(Serialize)]
-struct HistoricalOrdersRequest {
-    #[serde(rename = "type")]
-    request_type: String,
-    user: String,
-}
-
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct HistoricalOrdersResponse {
     pub order: Order,
     pub status: OrderStatus,
-    #[serde(rename = "statusTimestamp")]
     pub status_timestamp: u64,
 }
 
-// Order struct is now imported from crate::types
-
-
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Debug, Deserialize)]
 pub enum OrderStatus {
     #[serde(rename = "filled")]
     Filled,

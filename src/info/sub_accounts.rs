@@ -1,4 +1,5 @@
-use serde::{Deserialize, Serialize};
+use rust_decimal::Decimal;
+use serde::Deserialize;
 
 use crate::client::HyperLiquidClient;
 use crate::errors::validate_ethereum_address;

@@ -4,16 +4,25 @@
 //! trading pairs on HyperLiquid.
 
 use std::collections::HashMap;
+
 use rust_decimal::Decimal;
 use serde::Deserialize;
+
 use crate::client::HyperLiquidClient;
+
+/// A price value that deserializes from JSON string to Decimal
+#[derive(Deserialize, Debug, Clone)]
+pub struct Price(#[serde(with = "rust_decimal::serde::str")] pub Decimal);
 
 /// Mid prices for all trading pairs
 /// 
 /// Contains a mapping of coin symbols (e.g., "BTC", "ETH") to their current mid prices
 /// as strings to preserve exact decimal precision.
 #[derive(Deserialize, Debug)]
-pub struct MidPrices(pub HashMap<String, Decimal>);
+pub struct MidPrices {
+    #[serde(flatten)]
+    pub prices: HashMap<String, Price>,
+}
 
 impl HyperLiquidClient {
     /// Get current mid prices for all trading pairs
@@ -35,8 +44,8 @@ impl HyperLiquidClient {
     ///     let client = HyperLiquidClient::new();
     ///     let mid_prices = client.get_all_mids().await?;
     ///     
-    ///     if let Some(btc_price) = mid_prices.0.get("BTC") {
-    ///         println!("BTC mid price: ${}", btc_price);
+    ///     if let Some(btc_price) = mid_prices.prices.get("BTC") {
+    ///         println!("BTC mid price: ${}", btc_price.0);
     ///     }
     ///     
     ///     Ok(())

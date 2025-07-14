@@ -1,16 +1,9 @@
 use rust_decimal::Decimal;
-use serde::{Deserialize, Serialize};
-use crate::client::HyperLiquidClient;
+use serde::Deserialize;
 
-#[derive(Serialize)]
-struct UserFeesRequest {
-    #[serde(rename = "type")]
-    request_type: String,
-    user: String,
-}
+use crate::{client::HyperLiquidClient, errors::validate_ethereum_address};
 
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct UserFeesResponse {
     pub daily_user_vlm: Vec<DailyUserVlm>,
@@ -33,7 +26,7 @@ pub struct UserFeesResponse {
     pub active_staking_discount: Option<ActiveStakingDiscount>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DailyUserVlm {
     pub date: String,
@@ -45,7 +38,7 @@ pub struct DailyUserVlm {
     pub exchange: Decimal,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct FeeSchedule {
     #[serde(with = "rust_decimal::serde::str")]
@@ -62,14 +55,14 @@ pub struct FeeSchedule {
     pub staking_discount_tiers: Vec<StakingDiscountTier>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Tiers {
     pub vip: Vec<VipTier>,
     pub mm: Vec<MmTier>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct VipTier {
     #[serde(with = "rust_decimal::serde::str")]
@@ -84,7 +77,7 @@ pub struct VipTier {
     pub spot_add: Decimal,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MmTier {
     #[serde(with = "rust_decimal::serde::str")]
@@ -93,7 +86,7 @@ pub struct MmTier {
     pub add: Decimal,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct StakingDiscountTier {
     #[serde(with = "rust_decimal::serde::str")]
@@ -102,7 +95,7 @@ pub struct StakingDiscountTier {
     pub discount: Decimal,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ActiveStakingDiscount {
     pub bps_of_max_supply: String,

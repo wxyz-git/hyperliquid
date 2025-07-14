@@ -1,5 +1,6 @@
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
+
 use crate::client::HyperLiquidClient;
 use crate::errors::validate_ethereum_address;
 
@@ -13,7 +14,7 @@ struct VaultDetailsRequest {
 
 pub type VaultDetailsResponse = Option<VaultDetails>;
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct VaultDetails {
     pub name: String,
@@ -21,29 +22,37 @@ pub struct VaultDetails {
     pub leader: String,
     pub description: String,
     pub portfolio: Vec<(String, PortfolioData)>,
-    pub apr: f64,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub apr: Decimal,
     pub follower_state: Option<serde_json::Value>,
-    pub leader_fraction: f64,
-    pub leader_commission: f64,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub leader_fraction: Decimal,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub leader_commission: Decimal,
     pub followers: Vec<Follower>,
-    pub max_distributable: f64,
-    pub max_withdrawable: f64,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub max_distributable: Decimal,
+    #[serde(with = "rust_decimal::serde::str")]
+    pub max_withdrawable: Decimal,
     pub is_closed: bool,
     pub relationship: Relationship,
     pub allow_deposits: bool,
     pub always_close_on_withdraw: bool,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PortfolioData {
-    pub account_value_history: Vec<(u64, String)>,
-    pub pnl_history: Vec<(u64, String)>,
+    pub account_value_history: Vec<HistoryEntry>,
+    pub pnl_history: Vec<HistoryEntry>,
     #[serde(with = "rust_decimal::serde::str")]
     pub vlm: Decimal,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Deserialize)]
+pub struct HistoryEntry(pub u64, #[serde(with = "rust_decimal::serde::str")] pub Decimal);
+
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Follower {
     pub user: String,
@@ -58,7 +67,7 @@ pub struct Follower {
     pub lockup_until: u64,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Relationship {
     #[serde(rename = "type")]
@@ -74,15 +83,6 @@ impl HyperLiquidClient {
             vault_address: vault_address.to_string(),
         };
 
-        let response = self
-            .client
-            .post(&url)
-            .header("Content-Type", "application/json")
-            .json(&request_body)
-            .send()
-            .await?;
-
-        let vault_details: VaultDetailsResponse = response.json().await?;
-        Ok(vault_details)
+        self.make_custom_request(&request_body).await
     }
 }   

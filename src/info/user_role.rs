@@ -1,4 +1,5 @@
-use serde::{Serialize, Deserialize};
+use serde::Deserialize;
+
 use crate::client::HyperLiquidClient;
 use crate::errors::validate_ethereum_address;
 
@@ -7,7 +8,7 @@ pub struct UserRoleResponse {
    pub role: Role,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub enum Role {
     Missing,

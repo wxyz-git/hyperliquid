@@ -1,9 +1,10 @@
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
+
 use crate::client::HyperLiquidClient;
 use crate::errors::{validate_ethereum_address, validate_time_range};
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize)]
 struct UserFillsByTimeRequest {
     #[serde(rename = "type")]
     request_type: String,
@@ -16,7 +17,8 @@ struct UserFillsByTimeRequest {
     aggregated_by_time: bool,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct UserFillsByTimeResponse {
     pub coin: String,
     #[serde(with = "rust_decimal::serde::str")]
@@ -25,11 +27,9 @@ pub struct UserFillsByTimeResponse {
     pub sz: Decimal,
     pub side: String,
     pub time: u64,
-    #[serde(rename = "startPosition")]
     #[serde(with = "rust_decimal::serde::str")]
     pub start_position: Decimal,
     pub dir: String,
-    #[serde(rename = "closedPnl")]
     #[serde(with = "rust_decimal::serde::str")]
     pub closed_pnl: Decimal,
     pub hash: String,
@@ -38,17 +38,15 @@ pub struct UserFillsByTimeResponse {
     #[serde(with = "rust_decimal::serde::str")]
     pub fee: Decimal,
     pub tid: u64,
-    #[serde(rename = "feeToken")]
     pub fee_token: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub liquidation: Option<Liquidation>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Liquidation {
-    #[serde(rename = "liquidatedUser")]
     pub liquidated_user: String,
-    #[serde(rename = "markPx")]
     #[serde(with = "rust_decimal::serde::str")]
     pub mark_px: Decimal,
     pub method: String,

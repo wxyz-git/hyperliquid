@@ -20,7 +20,7 @@ struct CandleRequest {
     end_time: u64,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Debug, Deserialize)]
 pub struct CandleData {
     /// Start time of the candle in epoch milliseconds
     pub t: u64,
