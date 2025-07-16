@@ -5,10 +5,10 @@ use crate::client::HyperLiquidClient;
 use crate::errors::validate_ethereum_address;
 
 #[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
 struct VaultDetailsRequest {
     #[serde(rename = "type")]
     request_type: String,
-    #[serde(rename = "vaultAddress")]
     vault_address: String,
 }
 

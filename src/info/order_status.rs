@@ -13,12 +13,12 @@ struct OrderStatusRequest {
 #[derive(Debug, Deserialize)]
 pub struct OrderStatusResponse {
     pub status: String,
-    pub order: OrderStatus,
+    pub order: OrderWithStatus,
 }
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct OrderStatus {
+pub struct OrderWithStatus {
     pub order: Order,
     pub status: String,
     pub status_timestamp: u64,

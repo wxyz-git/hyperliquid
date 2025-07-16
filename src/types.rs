@@ -3,6 +3,43 @@
 use rust_decimal::Decimal;
 use serde::Deserialize;
 
+/// Represents the status/state of an order in the HyperLiquid system.
+#[derive(Debug, Deserialize, Clone)]
+pub enum OrderState {
+    #[serde(rename = "filled")]
+    Filled,
+    #[serde(rename = "open")]
+    Open,
+    #[serde(rename = "canceled")]
+    Canceled,
+    #[serde(rename = "triggered")]
+    Triggered,
+    #[serde(rename = "rejected")]
+    Rejected,
+    #[serde(rename = "marginCanceled")]
+    MarginCanceled,
+    #[serde(rename = "reduceOnlyRejected")]
+    ReduceOnlyRejected,
+    // Add other variants as they are discovered
+    #[serde(other)]
+    Unknown,
+}
+
+impl std::fmt::Display for OrderState {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            OrderState::Filled => write!(f, "filled"),
+            OrderState::Open => write!(f, "open"),
+            OrderState::Canceled => write!(f, "canceled"),
+            OrderState::Triggered => write!(f, "triggered"),
+            OrderState::Rejected => write!(f, "rejected"),
+            OrderState::MarginCanceled => write!(f, "marginCanceled"),
+            OrderState::ReduceOnlyRejected => write!(f, "reduceOnlyRejected"),
+            OrderState::Unknown => write!(f, "unknown"),
+        }
+    }
+}
+
 /// Represents an order in the HyperLiquid system.
 /// Used by order status, historical orders, and open orders endpoints.
 #[derive(Deserialize, Debug, Clone)]
@@ -42,8 +79,8 @@ pub struct Order {
     #[serde(with = "rust_decimal::serde::str")]
     pub trigger_px: Decimal,
     
-    /// Child orders (flexible type to handle different API responses)
-    pub children: Vec<serde_json::Value>,
+    /// Child orders (order IDs for compound orders)
+    pub children: Vec<u64>,
     
     /// Whether this is a position take-profit/stop-loss order
     #[serde(rename = "isPositionTpsl")]

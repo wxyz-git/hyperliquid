@@ -8,7 +8,6 @@ use crate::errors::validate_ethereum_address;
 #[serde(rename_all = "camelCase")]
 pub struct UserTwapSliceFillsResponse {
     pub fill: Fill,
-    #[serde(rename = "twapId")]
     pub twap_id: u64,
 }
 
